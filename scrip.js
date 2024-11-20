@@ -9,6 +9,9 @@ const dropZone = document.getElementById('drop-zone');
 
 // Función para crear las piezas del rompecabezas
 function createPuzzlePieces() {
+    let xOffset = 10; // Separación inicial horizontal
+    let yOffset = 10; // Separación inicial vertical
+
     for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
             const piece = document.createElement('div');
@@ -20,10 +23,17 @@ function createPuzzlePieces() {
             piece.style.backgroundSize = `${cols * 100}px ${rows * 100}px`;
             piece.style.backgroundPosition = `-${col * pieceWidth}px -${row * pieceHeight}px`;
 
-            // Asignar una posición aleatoria inicial
+            // Asignar una posición inicial ordenada en el lado
             piece.style.position = 'absolute';
-            piece.style.left = `${Math.random() * (window.innerWidth - pieceWidth)}px`;
-            piece.style.top = `${Math.random() * (window.innerHeight - pieceHeight)}px`;
+            piece.style.left = `${xOffset}px`;
+            piece.style.top = `${yOffset}px`;
+
+            // Incrementar las posiciones para separar las piezas
+            yOffset += pieceHeight + 10; // Añade separación vertical
+            if (yOffset > window.innerHeight - pieceHeight) {
+                yOffset = 10; // Reinicia el offset vertical
+                xOffset += pieceWidth + 10; // Mueve al siguiente columna
+            }
 
             // Guardar la posición correcta como atributo
             piece.dataset.correctRow = row;
@@ -80,8 +90,6 @@ function dropPiece(e) {
 
         cell.appendChild(piece);
         dropZone.appendChild(cell);
-    } else {
-        alert('Esta pieza no encaja aquí.');
     }
 }
 
