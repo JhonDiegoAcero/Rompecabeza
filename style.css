@@ -1,35 +1,45 @@
-body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-family: Arial, sans-serif;
+/* Contenedor principal para las piezas */
+#pieces {
+    display: none; /* Se muestra solo al iniciar */
 }
 
-.puzzle-area {
-    display: flex;
-    gap: 20px;
+/* Área donde se arma el rompecabezas */
+#drop-zone {
+    width: 300px; /* Ajustar según el tamaño de las piezas */
+    height: 400px; /* Ajustar según el tamaño de las piezas */
+    border: 2px dashed #000;
+    position: relative;
+    background-color: #f0f0f0;
+    margin: 20px auto;
 }
 
-.drop-zone {
-    width: 300px;
-    height: 400px;
-    border: 2px dashed #333;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(4, 1fr);
-    background-color: #f4f4f4;
-}
-
+/* Estilo de las piezas del rompecabezas */
 .puzzle-piece {
-    width: 100px;
-    height: 100px;
     cursor: grab;
-    position: absolute;
+    background-size: cover;
 }
 
-.pieces {
-    display: flex;
-    flex-wrap: wrap;
-    width: 120px;
-    gap: 10px;
+/* Botones de control */
+button {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #ccc;
+}
+
+/* Estilos específicos de los botones */
+#start-button {
+    background-color: #4caf50; /* Verde */
+    color: white;
+}
+
+#reset-button {
+    background-color: #f44336; /* Rojo */
+    color: white;
 }

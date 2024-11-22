@@ -1,97 +1,96 @@
-const imageSrc = 'imag.png'; // Ruta de la imagen del rompecabezas
-const rows = 4; // Divisiones en filas
-const cols = 3; // Divisiones en columnas
-const pieceWidth = 100;
-const pieceHeight = 100;
+const imageSrc = 'imag.png'; // Ruta de la imagen
+const rows = 4; // Filas del rompecabezas
+const cols = 3; // Columnas del rompecabezas
+const pieceWidth = 100; // Ancho de cada pieza
+const pieceHeight = 100; // Alto de cada pieza
 
-const piecesContainer = document.getElementById('pieces');
 const dropZone = document.getElementById('drop-zone');
+const piecesContainer = document.getElementById('pieces');
+const startButton = document.getElementById('start-button');
+const resetButton = document.getElementById('reset-button');
 
-// Función para crear las piezas del rompecabezas
+// Mostrar la imagen completa en el área del rompecabezas
+function showFullImage() {
+    dropZone.style.backgroundImage = `url(${imageSrc})`;
+    dropZone.style.backgroundSize = `${cols * pieceWidth}px ${rows * pieceHeight}px`;
+    dropZone.innerHTML = ''; // Limpia las piezas del área
+    piecesContainer.style.display = 'none'; // Oculta las piezas
+    resetButton.style.display = 'none'; // Oculta el botón "Volver"
+    startButton.style.display = 'block'; // Muestra el botón "Iniciar"
+}
+
+// Iniciar el juego: Ocultar la imagen completa y mostrar las piezas
+function startGame() {
+    dropZone.style.backgroundImage = ''; // Oculta la imagen completa
+    piecesContainer.innerHTML = ''; // Limpia las piezas previas
+    createPuzzlePieces(); // Genera las piezas
+    piecesContainer.style.display = 'flex'; // Muestra las piezas
+    startButton.style.display = 'none'; // Oculta el botón "Iniciar"
+    resetButton.style.display = 'block'; // Muestra el botón "Volver"
+}
+
+// Reiniciar el juego: Mostrar nuevamente la imagen completa
+function resetGame() {
+    showFullImage();
+}
+
+// Crear las piezas del rompecabezas y ubicarlas en orden
 function createPuzzlePieces() {
-    let xOffset = 10; // Separación inicial horizontal
-    let yOffset = 10; // Separación inicial vertical
-
     for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
             const piece = document.createElement('div');
             piece.classList.add('puzzle-piece');
             piece.draggable = true;
-
-            // Estilo para mostrar la parte correspondiente de la imagen
+            piece.style.width = `${pieceWidth}px`;
+            piece.style.height = `${pieceHeight}px`;
             piece.style.backgroundImage = `url(${imageSrc})`;
-            piece.style.backgroundSize = `${cols * 100}px ${rows * 100}px`;
+            piece.style.backgroundSize = `${cols * pieceWidth}px ${rows * pieceHeight}px`;
             piece.style.backgroundPosition = `-${col * pieceWidth}px -${row * pieceHeight}px`;
 
-            // Asignar una posición inicial ordenada en el lado
-            piece.style.position = 'absolute';
-            piece.style.left = `${xOffset}px`;
-            piece.style.top = `${yOffset}px`;
+            piece.dataset.row = row;
+            piece.dataset.col = col;
 
-            // Incrementar las posiciones para separar las piezas
-            yOffset += pieceHeight + 10; // Añade separación vertical
-            if (yOffset > window.innerHeight - pieceHeight) {
-                yOffset = 10; // Reinicia el offset vertical
-                xOffset += pieceWidth + 10; // Mueve al siguiente columna
-            }
-
-            // Guardar la posición correcta como atributo
-            piece.dataset.correctRow = row;
-            piece.dataset.correctCol = col;
-
-            piece.id = `piece-${row}-${col}`;
-            document.body.appendChild(piece);
-
-            // Evento de arrastre
+            piecesContainer.appendChild(piece);
             piece.addEventListener('dragstart', dragStart);
         }
     }
 }
 
-// Manejo del inicio del arrastre
+// Arrastrar piezas
 function dragStart(e) {
-    e.dataTransfer.setData('text', e.target.id);
+    e.dataTransfer.setData('text/plain', e.target.dataset.row + ',' + e.target.dataset.col);
 }
 
-// Permitir que las piezas se suelten en el área de ensamblaje
+// Permitir soltar piezas
 dropZone.addEventListener('dragover', (e) => e.preventDefault());
 
-// Manejar la colocación de piezas en el área de ensamblaje
-dropZone.addEventListener('drop', dropPiece);
-
-function dropPiece(e) {
+dropZone.addEventListener('drop', (e) => {
     e.preventDefault();
-    const pieceId = e.dataTransfer.getData('text');
-    const piece = document.getElementById(pieceId);
+    const [row, col] = e.dataTransfer.getData('text/plain').split(',');
+    const x = col * pieceWidth;
+    const y = row * pieceHeight;
 
-    // Calcular la celda donde se soltó la pieza
-    const dropRect = dropZone.getBoundingClientRect();
-    const x = e.clientX - dropRect.left;
-    const y = e.clientY - dropRect.top;
-
-    const col = Math.floor(x / pieceWidth);
-    const row = Math.floor(y / pieceHeight);
-
-    // Validar si la posición es correcta
+    // Validar si la posición es correcta dentro del área del rompecabezas
     if (
-        parseInt(piece.dataset.correctRow) === row &&
-        parseInt(piece.dataset.correctCol) === col
+        e.offsetX >= x &&
+        e.offsetX < x + pieceWidth &&
+        e.offsetY >= y &&
+        e.offsetY < y + pieceHeight
     ) {
-        const cell = document.createElement('div');
-        cell.classList.add('cell');
-        cell.style.gridRowStart = row + 1;
-        cell.style.gridColumnStart = col + 1;
-        cell.style.width = `${pieceWidth}px`;
-        cell.style.height = `${pieceHeight}px`;
-
-        piece.style.position = 'relative';
-        piece.style.left = '';
-        piece.style.top = '';
-
-        cell.appendChild(piece);
-        dropZone.appendChild(cell);
+        const piece = document.querySelector(`[data-row='${row}'][data-col='${col}']`);
+        piece.style.position = 'absolute';
+        piece.style.left = `${x}px`;
+        piece.style.top = `${y}px`;
+        piece.style.pointerEvents = 'none'; // Evitar mover una pieza colocada
+        dropZone.appendChild(piece);
+    } else {
+        alert('Coloca la pieza en el lugar correcto.');
     }
-}
+});
 
-// Llama a la función para crear las piezas cuando la página cargue
-window.addEventListener('load', createPuzzlePieces);
+// Configurar botones
+startButton.addEventListener('click', startGame);
+resetButton.addEventListener('click', resetGame);
+
+// Mostrar la imagen completa al cargar
+window.addEventListener('load', showFullImage);
