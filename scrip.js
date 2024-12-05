@@ -5,6 +5,7 @@ const puzzleContainer = document.getElementById('puzzle-container');
 const grid = document.getElementById('grid');
 const piecesContainer = document.getElementById('pieces');
 const timerDisplay = document.getElementById('timer');
+const completionMessage = document.getElementById('completion-message');
 
 let timerInterval;
 let secondsElapsed = 0;
@@ -42,6 +43,26 @@ function resetTimer() {
     timerDisplay.textContent = `Tiempo: 00:00`;
 }
 
+// Mostrar mensaje de felicitaciones
+function showMessage(message) {
+    completionMessage.textContent = message;
+    completionMessage.style.display = 'block';
+    completionMessage.style.backgroundColor = '#28a745';
+    completionMessage.style.color = 'white';
+    completionMessage.style.padding = '20px';
+    completionMessage.style.position = 'fixed';
+    completionMessage.style.top = '20%';
+    completionMessage.style.left = '50%';
+    completionMessage.style.transform = 'translate(-50%, -50%)';
+    completionMessage.style.borderRadius = '10px';
+    completionMessage.style.fontSize = '18px';
+    completionMessage.style.zIndex = '1000';
+
+    setTimeout(() => {
+        completionMessage.style.display = 'none';
+    }, 5000);
+}
+
 // Configurar el botón "Iniciar"
 startButton.addEventListener('click', () => {
     imageContainer.style.display = 'none';
@@ -61,6 +82,25 @@ resetButton.addEventListener('click', () => {
     resetButton.style.display = 'none';
     startButton.style.display = 'inline-block';
 });
+
+// Verificar si el rompecabezas está completo
+function checkCompletion() {
+    const pieces = document.querySelectorAll('.piece');
+    for (let piece of pieces) {
+        const row = piece.getAttribute('data-row');
+        const col = piece.getAttribute('data-col');
+        const parent = piece.parentElement;
+
+        if (parent.classList.contains('grid-cell') &&
+            parent.getAttribute('data-row') === row &&
+            parent.getAttribute('data-col') === col) {
+            continue;
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
 
 // Configurar el rompecabezas
 function setupPuzzle() {
@@ -128,7 +168,11 @@ function dropPiece(event) {
         piece.style.top = '0';
         piece.style.width = '100%';
         piece.style.height = '100%';
+
+        // Verificar si el rompecabezas está completo
+        if (checkCompletion()) {
+            stopTimer();
+            showMessage(`¡Felicidades por completar el rompecabezas en ${formatTime(secondsElapsed)}!`);
+        }
     }
 }
-
-

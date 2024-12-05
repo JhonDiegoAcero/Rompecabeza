@@ -24,12 +24,6 @@ body {
     margin-bottom: 20px;
 }
 
-#complete-image {
-    width: 480px;
-    height: 480px;
-    margin-bottom: 10px;
-}
-
 #start-button {
     padding: 10px 20px;
     font-size: 18px;
@@ -81,6 +75,7 @@ body {
     border: 1px solid #ccc;
     box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 }
+
 #grid .grid-cell {
     position: relative;
     background-color: white;
@@ -88,4 +83,18 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+#completion-message {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #28a745;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    font-size: 18px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
 }
