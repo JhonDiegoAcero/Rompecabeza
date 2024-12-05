@@ -7,15 +7,23 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <div id="controls">
         <button id="start-button">Iniciar</button>
         <button id="reset-button" style="display: none;">Volver</button>
+        <span id="timer" style="font-size: 20px; margin-left: 10px;">Tiempo: 00:00</span>
     </div>
-    <div id="drop-zone"></div>
-    <div id="pieces"></div>
+
+    <div id="image-container">
+        <!-- Imagen completa al principio -->
+        <img src="imag.png" alt="Imagen" width="480" height="480">
+    </div>
+
+    <div id="puzzle-container" style="display: none;">
+        <div id="grid"></div>
+        <div id="pieces"></div>
+    </div>
 
     <script src="scrip.js"></script>
 </body>
 </html>
-
-

@@ -1,96 +1,134 @@
-const imageSrc = 'imag.png'; // Ruta de la imagen
-const rows = 4; // Filas del rompecabezas
-const cols = 3; // Columnas del rompecabezas
-const pieceWidth = 100; // Ancho de cada pieza
-const pieceHeight = 100; // Alto de cada pieza
-
-const dropZone = document.getElementById('drop-zone');
-const piecesContainer = document.getElementById('pieces');
 const startButton = document.getElementById('start-button');
 const resetButton = document.getElementById('reset-button');
+const imageContainer = document.getElementById('image-container');
+const puzzleContainer = document.getElementById('puzzle-container');
+const grid = document.getElementById('grid');
+const piecesContainer = document.getElementById('pieces');
+const timerDisplay = document.getElementById('timer');
 
-// Mostrar la imagen completa en el área del rompecabezas
-function showFullImage() {
-    dropZone.style.backgroundImage = `url(${imageSrc})`;
-    dropZone.style.backgroundSize = `${cols * pieceWidth}px ${rows * pieceHeight}px`;
-    dropZone.innerHTML = ''; // Limpia las piezas del área
-    piecesContainer.style.display = 'none'; // Oculta las piezas
-    resetButton.style.display = 'none'; // Oculta el botón "Volver"
-    startButton.style.display = 'block'; // Muestra el botón "Iniciar"
+let timerInterval;
+let secondsElapsed = 0;
+
+const rows = 12;
+const cols = 12;
+const pieceSize = 40;
+
+// Función para convertir segundos en formato "MM:SS"
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
 
-// Iniciar el juego: Ocultar la imagen completa y mostrar las piezas
-function startGame() {
-    dropZone.style.backgroundImage = ''; // Oculta la imagen completa
-    piecesContainer.innerHTML = ''; // Limpia las piezas previas
-    createPuzzlePieces(); // Genera las piezas
-    piecesContainer.style.display = 'flex'; // Muestra las piezas
-    startButton.style.display = 'none'; // Oculta el botón "Iniciar"
-    resetButton.style.display = 'block'; // Muestra el botón "Volver"
+// Iniciar el cronómetro
+function startTimer() {
+    secondsElapsed = 0;
+    timerDisplay.textContent = `Tiempo: ${formatTime(secondsElapsed)}`;
+    timerInterval = setInterval(() => {
+        secondsElapsed++;
+        timerDisplay.textContent = `Tiempo: ${formatTime(secondsElapsed)}`;
+    }, 1000);
 }
 
-// Reiniciar el juego: Mostrar nuevamente la imagen completa
-function resetGame() {
-    showFullImage();
+// Detener el cronómetro
+function stopTimer() {
+    clearInterval(timerInterval);
 }
 
-// Crear las piezas del rompecabezas y ubicarlas en orden
-function createPuzzlePieces() {
-    for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < cols; col++) {
-            const piece = document.createElement('div');
-            piece.classList.add('puzzle-piece');
-            piece.draggable = true;
-            piece.style.width = `${pieceWidth}px`;
-            piece.style.height = `${pieceHeight}px`;
-            piece.style.backgroundImage = `url(${imageSrc})`;
-            piece.style.backgroundSize = `${cols * pieceWidth}px ${rows * pieceHeight}px`;
-            piece.style.backgroundPosition = `-${col * pieceWidth}px -${row * pieceHeight}px`;
-
-            piece.dataset.row = row;
-            piece.dataset.col = col;
-
-            piecesContainer.appendChild(piece);
-            piece.addEventListener('dragstart', dragStart);
-        }
-    }
+// Resetear el cronómetro
+function resetTimer() {
+    stopTimer();
+    secondsElapsed = 0;
+    timerDisplay.textContent = `Tiempo: 00:00`;
 }
 
-// Arrastrar piezas
-function dragStart(e) {
-    e.dataTransfer.setData('text/plain', e.target.dataset.row + ',' + e.target.dataset.col);
-}
-
-// Permitir soltar piezas
-dropZone.addEventListener('dragover', (e) => e.preventDefault());
-
-dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    const [row, col] = e.dataTransfer.getData('text/plain').split(',');
-    const x = col * pieceWidth;
-    const y = row * pieceHeight;
-
-    // Validar si la posición es correcta dentro del área del rompecabezas
-    if (
-        e.offsetX >= x &&
-        e.offsetX < x + pieceWidth &&
-        e.offsetY >= y &&
-        e.offsetY < y + pieceHeight
-    ) {
-        const piece = document.querySelector(`[data-row='${row}'][data-col='${col}']`);
-        piece.style.position = 'absolute';
-        piece.style.left = `${x}px`;
-        piece.style.top = `${y}px`;
-        piece.style.pointerEvents = 'none'; // Evitar mover una pieza colocada
-        dropZone.appendChild(piece);
-    } else {
-        alert('Coloca la pieza en el lugar correcto.');
-    }
+// Configurar el botón "Iniciar"
+startButton.addEventListener('click', () => {
+    imageContainer.style.display = 'none';
+    puzzleContainer.style.display = 'flex';
+    startButton.style.display = 'none';
+    resetButton.style.display = 'inline-block';
+    setupPuzzle();
+    startTimer();
 });
 
-// Configurar botones
-startButton.addEventListener('click', startGame);
-resetButton.addEventListener('click', resetGame);
+// Configurar el botón "Volver"
+resetButton.addEventListener('click', () => {
+    stopTimer();
+    resetTimer();
+    puzzleContainer.style.display = 'none';
+    imageContainer.style.display = 'flex';
+    resetButton.style.display = 'none';
+    startButton.style.display = 'inline-block';
+});
 
-// Mostrar la imagen completa al cargar
-window.addEventListener('load', showFullImage);
+// Configurar el rompecabezas
+function setupPuzzle() {
+    const positions = [];
+    grid.innerHTML = '';
+    piecesContainer.innerHTML = '';
+
+    // Generar las celdas del tablero
+    for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+            positions.push({ row, col });
+
+            const cell = document.createElement('div');
+            cell.classList.add('grid-cell');
+            cell.style.width = `${pieceSize}px`;
+            cell.style.height = `${pieceSize}px`;
+            cell.dataset.row = row;
+            cell.dataset.col = col;
+            cell.addEventListener('dragover', dragOver);
+            cell.addEventListener('drop', dropPiece);
+            grid.appendChild(cell);
+        }
+    }
+
+    // Generar las piezas del rompecabezas
+    positions.forEach(({ row, col }) => {
+        const piece = document.createElement('div');
+        piece.classList.add('piece');
+        piece.style.backgroundImage = 'url("imag.png")';
+        piece.style.backgroundPosition = `-${col * pieceSize}px -${row * pieceSize}px`;
+        piece.setAttribute('data-row', row);
+        piece.setAttribute('data-col', col);
+
+        piece.draggable = true;
+        piece.addEventListener('dragstart', dragStart);
+        piece.addEventListener('dragend', dragEnd);
+
+        piecesContainer.appendChild(piece);
+    });
+}
+
+function dragStart(event) {
+    event.dataTransfer.setData('text/plain', event.target.getAttribute('data-row') + ',' + event.target.getAttribute('data-col'));
+    setTimeout(() => (event.target.style.visibility = 'hidden'), 0);
+}
+
+function dragEnd(event) {
+    event.target.style.visibility = 'visible';
+}
+
+function dragOver(event) {
+    event.preventDefault();
+}
+
+function dropPiece(event) {
+    event.preventDefault();
+
+    const [row, col] = event.dataTransfer.getData('text').split(',').map(Number);
+    const piece = document.querySelector(`.piece[data-row='${row}'][data-col='${col}']`);
+
+    if (piece && event.target.classList.contains('grid-cell') && !event.target.hasChildNodes()) {
+        event.target.appendChild(piece);
+        piece.style.position = 'relative';
+        piece.style.left = '0';
+        piece.style.top = '0';
+        piece.style.width = '100%';
+        piece.style.height = '100%';
+    }
+}
+
+
