@@ -98,3 +98,26 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     z-index: 1000;
 }
+/* Fondo para el rompecabezas */
+#puzzle-container {
+    background: url('Fondo.jpg') no-repeat center center;
+    background-size: cover; /* Ajusta el tamaño del fondo */
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Fondo general de la página */
+body {
+    background: url('fondoPrin.png') no-repeat center center fixed;
+    background-size: cover; /* Ajusta la imagen al tamaño de la pantalla */
+    margin: 0; /* Elimina los márgenes por defecto */
+    padding: 0;
+}
+
+/* Opcional: agregar transparencia al área del rompecabezas */
+#puzzle-container {
+    background-color: rgba(255, 255, 255, 0.8); /* Blanco con transparencia */
+    border-radius: 10px;
+    padding: 10px;
+}
